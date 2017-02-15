@@ -10,7 +10,12 @@ import (
 )
 
 func main() {
-	reader, err1 := os.Open("unknown.jpg")
+	m := readimg("unknown.jpg")
+	writeimg(m, "img.png")
+}
+
+func readimg(filename string) image.Image {
+	reader, err1 := os.Open(filename)
 	if err1 != nil {
 		log.Fatal(err1)
 	}
@@ -19,7 +24,7 @@ func main() {
 	if err2 != nil {
 		log.Fatal(err2)
 	}
-	writeimg(m, "img.png")
+	return m
 }
 
 func writeimg(m image.Image, filename string) {
