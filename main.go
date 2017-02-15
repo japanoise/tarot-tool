@@ -2,12 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
@@ -27,7 +29,7 @@ func main() {
 			}
 		}
 	}
-	writeimg(canvas, "img.png")
+	writeimg(canvas, fmt.Sprintf("%d.%s", int32(time.Now().Unix()), "png"))
 }
 
 func gencanvas(images []image.Image, glue int) (image.RGBA, int, int) {
