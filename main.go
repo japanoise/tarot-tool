@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -10,8 +11,28 @@ import (
 )
 
 func main() {
-	m := readimg("unknown.jpg")
+	glue := flag.Int("g", 30, "pixels of spacing glue between edges")
+	flag.Parse()
+	images := make([]image.Image, 0, 3)
+	for _, arg := range flag.Args() {
+		images = append(images, readimg(arg))
+	}
+	m := gencanvas(images, *glue)
 	writeimg(m, "img.png")
+}
+
+func gencanvas(images []image.Image, glue int) image.Image {
+	cardwidth, cardheight := 0, 0
+	for _, img := range images {
+		if img.Bounds().Dx() > cardwidth {
+			cardwidth = img.Bounds().Dx()
+		}
+		if img.Bounds().Dy() > cardheight {
+			cardheight = img.Bounds().Dy()
+		}
+	}
+	l := len(images)
+	return image.NewRGBA(image.Rect(0, 0, ((l+1)*glue)+(l*cardwidth), (2*glue)+cardheight))
 }
 
 func readimg(filename string) image.Image {
