@@ -19,7 +19,7 @@ Usage of ./tarot-tool:
 
 `./tarot-tool rws/wa09.jpg rws/cu07.jpg rws/ar11.jpg`
 
-![An example image showing a three-card spread](examples/ex1.png)
+![An example image showing a three-card spread](example/ex1.png)
 
 ## Licensing
 
