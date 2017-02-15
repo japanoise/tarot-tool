@@ -1,6 +1,17 @@
 # tarot-tool
 
-This tool will generate tarot spreads. It is not yet implemented.
+This tool will generate tarot spreads. Right now it will generate a linear collage of 
+cards given, à la [the three card spread](https://www.daily-tarot-girl.com/tarot-card-spreads/3-card-tarot-spread-past-present-future/)
+
+## Usage
+
+Run `./tarot-tool [cards...]`
+
+~~~~~~
+Usage of ./tarot-tool:
+  -g int
+    	pixels of spacing glue between edges (default 30)
+~~~~~~
 
 ## Licensing
 
