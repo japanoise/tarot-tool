@@ -17,11 +17,20 @@ func main() {
 	for _, arg := range flag.Args() {
 		images = append(images, readimg(arg))
 	}
-	m := gencanvas(images, *glue)
-	writeimg(m, "img.png")
+	canvas, cw, _ := gencanvas(images, *glue)
+	for i, img := range images {
+		anchor := ((i + 1) * *glue) + (i * cw)
+		for x := 0; x < img.Bounds().Dx(); x++ {
+			for y := 0; y < img.Bounds().Dy(); y++ {
+				canvas.Set(anchor+x, *glue+y, img.At(x, y))
+				//log.Print(canvas.At(anchor + x, *glue + y))
+			}
+		}
+	}
+	writeimg(canvas, "img.png")
 }
 
-func gencanvas(images []image.Image, glue int) image.Image {
+func gencanvas(images []image.Image, glue int) (image.RGBA, int, int) {
 	cardwidth, cardheight := 0, 0
 	for _, img := range images {
 		if img.Bounds().Dx() > cardwidth {
@@ -32,7 +41,7 @@ func gencanvas(images []image.Image, glue int) image.Image {
 		}
 	}
 	l := len(images)
-	return image.NewRGBA(image.Rect(0, 0, ((l+1)*glue)+(l*cardwidth), (2*glue)+cardheight))
+	return *image.NewRGBA(image.Rect(0, 0, ((l+1)*glue)+(l*cardwidth), (2*glue)+cardheight)), cardwidth, cardheight
 }
 
 func readimg(filename string) image.Image {
@@ -48,13 +57,13 @@ func readimg(filename string) image.Image {
 	return m
 }
 
-func writeimg(m image.Image, filename string) {
+func writeimg(m image.RGBA, filename string) {
 	writer, err := os.Create(filename)
 	defer writer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = png.Encode(writer, m)
+	err = png.Encode(writer, &m)
 	if err != nil {
 		log.Fatal(err)
 	}
