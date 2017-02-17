@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-func getunknown() image.Image {
+func getunknown() *image.Image {
 	reader := base64.NewDecoder(base64.StdEncoding, strings.NewReader(data))
 	m, _, err := image.Decode(reader)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return m
+	return &m
 }
 
 const data = `

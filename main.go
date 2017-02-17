@@ -16,11 +16,11 @@ func main() {
 	glue := flag.Int("g", 30, "pixels of spacing glue between edges")
 	cc := flag.Bool("c", false, "use a celtic cross layout")
 	flag.Parse()
-	images := make([]image.Image, 0, 3)
+	images := make([]*image.Image, 0, 3)
 	for _, arg := range flag.Args() {
 		images = append(images, readimg(arg))
 	}
-	var m image.RGBA
+	var m *image.RGBA
 	if *cc {
 		m = ccspread(images, glue)
 	} else {
@@ -29,13 +29,13 @@ func main() {
 	writeimg(m, fmt.Sprintf("%d.%s", int32(time.Now().Unix()), "png"))
 }
 
-func ccspread(images []image.Image, glue *int) image.RGBA {
+func ccspread(images []*image.Image, glue *int) *image.RGBA {
 	for len(images) < 10 {
 		images = append(images, getunknown())
 	}
 	cardwidth, cardheight := getcwch(images)
 	g := *glue
-	canvas := *image.NewRGBA(image.Rect(0, 0, (3*cardwidth)+cardheight+(5*g), (5*g)+(4*cardheight)))
+	canvas := image.NewRGBA(image.Rect(0, 0, (3*cardwidth)+cardheight+(5*g), (5*g)+(4*cardheight)))
 	cssize := (cardheight - cardwidth) / 2
 	canchx := (2 * g) + cardwidth + cssize
 	canchy := g + (cardheight / 2)
@@ -45,7 +45,8 @@ func ccspread(images []image.Image, glue *int) image.RGBA {
 	copycard(images[0], canvas, canchx, canchy+incy)
 	copycard(images[2], canvas, canchx, canchy+(2*incy))
 	copycard(images[3], canvas, g, canchy+incy)
-	copycard(rotatecard(images[1]), canvas, canchx-cssize, canchy+incy+cssize)
+	r := rotatecard(images[1])
+	copycard(&r, canvas, canchx-cssize, canchy+incy+cssize)
 	copycard(images[5], canvas, canchx+cardwidth+cssize+g, canchy+incy)
 	/* rod to the right of the spread */
 	ranchx := canchx + (2 * cardwidth) + cssize + (3 * g)
@@ -56,7 +57,8 @@ func ccspread(images []image.Image, glue *int) image.RGBA {
 	return canvas
 }
 
-func rotatecard(img image.Image) image.Image {
+func rotatecard(i *image.Image) image.Image {
+	img := *i
 	retval := image.NewRGBA(image.Rect(0, 0, img.Bounds().Dy(), img.Bounds().Dx()))
 	for x := 0; x < img.Bounds().Dx(); x++ {
 		for y := 0; y < img.Bounds().Dy(); y++ {
@@ -66,7 +68,8 @@ func rotatecard(img image.Image) image.Image {
 	return retval
 }
 
-func copycard(img image.Image, canvas image.RGBA, anchorx, anchory int) {
+func copycard(i *image.Image, canvas *image.RGBA, anchorx, anchory int) {
+	img := *i
 	for x := 0; x < img.Bounds().Dx(); x++ {
 		for y := 0; y < img.Bounds().Dy(); y++ {
 			canvas.Set(anchorx+x, anchory+y, img.At(x, y))
@@ -74,7 +77,7 @@ func copycard(img image.Image, canvas image.RGBA, anchorx, anchory int) {
 	}
 }
 
-func linearspread(images []image.Image, glue *int) image.RGBA {
+func linearspread(images []*image.Image, glue *int) *image.RGBA {
 	canvas, cw, _ := gencanvas(images, *glue)
 	for i, img := range images {
 		copycard(img, canvas, ((i+1)**glue)+(i*cw), *glue)
@@ -82,9 +85,10 @@ func linearspread(images []image.Image, glue *int) image.RGBA {
 	return canvas
 }
 
-func getcwch(images []image.Image) (int, int) {
+func getcwch(images []*image.Image) (int, int) {
 	cardwidth, cardheight := 0, 0
-	for _, img := range images {
+	for _, i := range images {
+		img := *i
 		if img.Bounds().Dx() > cardwidth {
 			cardwidth = img.Bounds().Dx()
 		}
@@ -95,13 +99,13 @@ func getcwch(images []image.Image) (int, int) {
 	return cardwidth, cardheight
 }
 
-func gencanvas(images []image.Image, glue int) (image.RGBA, int, int) {
+func gencanvas(images []*image.Image, glue int) (*image.RGBA, int, int) {
 	cardwidth, cardheight := getcwch(images)
 	l := len(images)
-	return *image.NewRGBA(image.Rect(0, 0, ((l+1)*glue)+(l*cardwidth), (2*glue)+cardheight)), cardwidth, cardheight
+	return image.NewRGBA(image.Rect(0, 0, ((l+1)*glue)+(l*cardwidth), (2*glue)+cardheight)), cardwidth, cardheight
 }
 
-func readimg(filename string) image.Image {
+func readimg(filename string) *image.Image {
 	reader, err1 := os.Open(filename)
 	if err1 != nil {
 		log.Fatal(err1)
@@ -111,16 +115,16 @@ func readimg(filename string) image.Image {
 	if err2 != nil {
 		log.Fatal(err2)
 	}
-	return m
+	return &m
 }
 
-func writeimg(m image.RGBA, filename string) {
+func writeimg(m *image.RGBA, filename string) {
 	writer, err := os.Create(filename)
 	defer writer.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = png.Encode(writer, &m)
+	err = png.Encode(writer, m)
 	if err != nil {
 		log.Fatal(err)
 	}
