@@ -38,13 +38,16 @@ func ccspread(images []image.Image, glue *int) image.RGBA {
 	canvas := *image.NewRGBA(image.Rect(0, 0, (3*cardwidth)+cardheight+(5*g), (5*g)+(4*cardheight)))
 	cssize := (cardheight - cardwidth) / 2
 	canchx := (2 * g) + cardwidth + cssize
+	canchy := g + (cardheight / 2)
 	incy := cardheight + g
-	copycard(images[4], canvas, canchx, g)
-	copycard(images[0], canvas, canchx, g+incy)
-	copycard(images[2], canvas, canchx, g+(2*incy))
-	copycard(images[3], canvas, g, g+incy)
-	copycard(rotatecard(images[1]), canvas, canchx-cssize, g+incy+cssize)
-	copycard(images[5], canvas, canchx+cardwidth+cssize+g, g+incy)
+	/* central area of the spread */
+	copycard(images[4], canvas, canchx, canchy)
+	copycard(images[0], canvas, canchx, canchy+incy)
+	copycard(images[2], canvas, canchx, canchy+(2*incy))
+	copycard(images[3], canvas, g, canchy+incy)
+	copycard(rotatecard(images[1]), canvas, canchx-cssize, canchy+incy+cssize)
+	copycard(images[5], canvas, canchx+cardwidth+cssize+g, canchy+incy)
+	/* rod to the right of the spread */
 	ranchx := canchx + (2 * cardwidth) + cssize + (3 * g)
 	copycard(images[9], canvas, ranchx, g)
 	copycard(images[8], canvas, ranchx, g+incy)
